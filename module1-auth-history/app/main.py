@@ -7,8 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401  (registers tables on Base.metadata)
 from app.config import CORS_ORIGINS
 from app.database import Base, engine
-from app.routers import auth, history
-
+from app.routers import auth, history, watchlist
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +32,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(history.router)
+app.include_router(watchlist.router)
 
 
 @app.get("/health", tags=["Health"])

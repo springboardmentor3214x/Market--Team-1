@@ -1,8 +1,16 @@
-"""Database models: User and ResearchHistory (one user -> many history entries)."""
+
+"""Database models: User, ResearchHistory, and Watchlist."""
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, Text
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -25,21 +33,65 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
 
+    watchlist: Mapped[list["Watchlist"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class ResearchHistory(Base):
     __tablename__ = "research_history"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
+
     query: Mapped[str] = mapped_column(Text)
     market: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     analysis_period: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     result_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     result_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, index=True
     )
 
     user: Mapped["User"] = relationship(back_populates="history")
+
+
+class Watchlist(Base):
+    __tablename__ = "watchlist"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    stock_symbol: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    market: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="NSE",
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="watchlist")
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "stock_symbol",
+            "market",
+            name="uq_user_stock_market",
+        ),
+    )

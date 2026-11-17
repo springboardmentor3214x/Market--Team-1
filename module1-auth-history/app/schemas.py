@@ -67,3 +67,37 @@ class HistoryList(BaseModel):
     total: int
     page: int
     page_size: int
+
+# ---------- Saved Stocks and Watchlist ----------
+
+class WatchlistCreate(BaseModel):
+    stock_symbol: str = Field(
+        min_length=1,
+        max_length=20
+    )
+    market: str = Field(
+        default="NSE",
+        min_length=1,
+        max_length=20
+    )
+
+    @field_validator("stock_symbol", "market")
+    @classmethod
+    def validate_not_empty(cls, value: str) -> str:
+        value = value.strip().upper()
+
+        if not value:
+            raise ValueError("This field cannot be empty")
+
+        return value
+
+
+class WatchlistOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    stock_symbol: str
+    market: str
+    created_at: datetime
+
