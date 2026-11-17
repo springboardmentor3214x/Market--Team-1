@@ -1,5 +1,5 @@
 
-"""Database models: User, ResearchHistory, and Watchlist."""
+"""Database models: User, ResearchHistory, UserPreference, and Watchlist."""
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -27,10 +27,16 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow
+    )
 
     history: Mapped[list["ResearchHistory"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
+    )
+
+    preferences: Mapped[Optional["UserPreference"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", uselist=False
     )
 
     watchlist: Mapped[list["Watchlist"]] = relationship(
@@ -74,15 +80,11 @@ class Watchlist(Base):
     stock_symbol: Mapped[str] = mapped_column(String(20), nullable=False)
 
     market: Mapped[str] = mapped_column(
-        String(20),
-        nullable=False,
-        default="NSE",
+        String(20), nullable=False, default="NSE"
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=utcnow,
-        nullable=False,
+        DateTime(timezone=True), default=utcnow, nullable=False
     )
 
     user: Mapped["User"] = relationship(back_populates="watchlist")
@@ -95,3 +97,24 @@ class Watchlist(Base):
             name="uq_user_stock_market",
         ),
     )
+
+
+class UserPreference(Base):
+    """One row per user: preferred stock market and default analysis period."""
+
+    __tablename__ = "user_preferences"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True
+    )
+
+    preferred_market: Mapped[str] = mapped_column(String(10), default="NSE")
+    analysis_period: Mapped[str] = mapped_column(String(10), default="1Y")
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+    user: Mapped["User"] = relationship(back_populates="preferences")
