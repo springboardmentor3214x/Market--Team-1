@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user
-from app.models import ResearchHistory, User
+from app.models import ResearchHistory, User, UserPreference
 from app.schemas import HistoryCreate, HistoryList, HistoryOut
 
 router = APIRouter(prefix="/history", tags=["Research History"])
@@ -34,7 +34,17 @@ def create_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    item = ResearchHistory(user_id=current_user.id, **payload.model_dump())
+    data = payload.model_dump()
+    # If the request omits market/period, use the user's saved preferences (if any).
+    pref = db.scalar(
+        select(UserPreference).where(UserPreference.user_id == current_user.id)
+    )
+    if pref is not None:
+        if not data.get("market"):
+            data["market"] = pref.preferred_market
+        if not data.get("analysis_period"):
+            data["analysis_period"] = pref.analysis_period
+    item = ResearchHistory(user_id=current_user.id, **data)
     db.add(item)
     db.commit()
     db.refresh(item)

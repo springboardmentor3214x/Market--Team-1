@@ -9,13 +9,14 @@ module1-auth-history/
 │   ├── main.py          # FastAPI app, CORS, router registration
 │   ├── config.py        # settings from .env
 │   ├── database.py      # SQLAlchemy engine/session
-│   ├── models.py        # User, ResearchHistory
+│   ├── models.py        # User, ResearchHistory, UserPreference
 │   ├── schemas.py       # request/response validation
 │   ├── security.py      # bcrypt hashing + JWT create/verify
 │   ├── deps.py          # get_current_user (reuse in other modules)
 │   └── routers/
 │       ├── auth.py      # /auth/register, /auth/login, /auth/login-json, /auth/me
-│       └── history.py   # /history CRUD (scoped to logged-in user)
+│       ├── history.py   # /history CRUD (scoped to logged-in user)
+│       └── preferences.py # /preferences GET/PUT/DELETE (user preferences)
 ├── tests/               # pytest suite
 ├── requirements.txt
 ├── .env.example
@@ -54,6 +55,9 @@ pytest -v
 | GET | `/auth/me` | Yes | Current user |
 | POST | `/history` | Yes | Save a research entry |
 | GET | `/history` | Yes | List own entries (`page`, `page_size`, `q`, `market`) |
+| GET | `/preferences` | Yes | Get preferred market + analysis period (defaults NSE / 1Y) |
+| PUT | `/preferences` | Yes | Save preferences (market: NSE/BSE/NYSE/NASDAQ; period: 1M/3M/6M/1Y/3Y/5Y) |
+| DELETE | `/preferences` | Yes | Reset preferences to defaults |
 | GET | `/history/{id}` | Yes | Get one own entry |
 | DELETE | `/history/{id}` | Yes | Delete one own entry |
 | DELETE | `/history` | Yes | Clear all own history |
@@ -103,3 +107,6 @@ To save an agent's analysis into a user's history, insert a `ResearchHistory(use
 - JWT is signed (HS256) with `SECRET_KEY` and expires (default 60 min).
 - History queries always filter by the user id from the verified token; other users' entries return 404.
 - `.env` and `*.db` are git-ignored. Never commit secrets.
+
+## Frontend: preferences page
+`frontend-preferences/src/` holds `api.js` and `PreferencesPage.jsx`. Copy them into your React (Vite) app's `src/`, render `<PreferencesPage />` on a protected route, and make sure the login page stores the JWT with `localStorage.setItem("token", access_token)`.
