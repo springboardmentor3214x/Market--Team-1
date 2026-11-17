@@ -1,13 +1,14 @@
-"""FastAPI entry point.  Run with:  uvicorn app.main:app --reload"""
+
+"""FastAPI entry point. Run with: uvicorn app.main:app --reload"""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import models  # noqa: F401  (registers tables on Base.metadata)
+from app import models  # noqa: F401
 from app.config import CORS_ORIGINS
 from app.database import Base, engine
-from app.routers import auth, history, preferences
+from app.routers import auth, history, preferences, watchlist
 
 
 @asynccontextmanager
@@ -18,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Market Research Platform - Auth & Research Workspace",
-    description="Module 1: JWT authentication, research history and user preferences.",
+    description="Module 1: JWT authentication, research history, user preferences and watchlists.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(history.router)
 app.include_router(preferences.router)
+app.include_router(watchlist.router)
 
 
 @app.get("/health", tags=["Health"])
