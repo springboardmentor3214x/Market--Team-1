@@ -24,6 +24,9 @@ class User(Base):
     history: Mapped[list["ResearchHistory"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    preferences: Mapped[Optional["UserPreference"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", uselist=False
+    )
 
 
 class ResearchHistory(Base):
@@ -43,3 +46,21 @@ class ResearchHistory(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="history")
+
+
+class UserPreference(Base):
+    """One row per user: preferred stock market and default analysis period."""
+
+    __tablename__ = "user_preferences"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True
+    )
+    preferred_market: Mapped[str] = mapped_column(String(10), default="NSE")
+    analysis_period: Mapped[str] = mapped_column(String(10), default="1Y")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+    user: Mapped["User"] = relationship(back_populates="preferences")

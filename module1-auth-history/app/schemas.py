@@ -1,6 +1,6 @@
 """Pydantic request/response schemas."""
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
@@ -67,3 +67,36 @@ class HistoryList(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+# ---------- User preferences ----------
+# Single source of truth: Module 2 (stock search) supports exactly these markets.
+Market = Literal["NSE", "BSE", "NYSE", "NASDAQ"]
+AnalysisPeriod = Literal["1M", "3M", "6M", "1Y", "3Y", "5Y"]
+
+DEFAULT_MARKET = "NSE"
+DEFAULT_PERIOD = "1Y"
+
+
+class PreferenceUpdate(BaseModel):
+    preferred_market: Market
+    analysis_period: AnalysisPeriod
+
+    @field_validator("preferred_market", mode="before")
+    @classmethod
+    def normalise_market(cls, v):
+        return v.strip().upper() if isinstance(v, str) else v
+
+    @field_validator("analysis_period", mode="before")
+    @classmethod
+    def normalise_period(cls, v):
+        return v.strip().upper() if isinstance(v, str) else v
+
+
+class PreferenceOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    preferred_market: str
+    analysis_period: str
+    updated_at: Optional[datetime] = None
+    is_default: bool = False

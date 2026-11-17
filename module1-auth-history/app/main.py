@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401  (registers tables on Base.metadata)
 from app.config import CORS_ORIGINS
 from app.database import Base, engine
-from app.routers import auth, history
+from app.routers import auth, history, preferences
 
 
 @asynccontextmanager
@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Market Research Platform - Auth & Research Workspace",
-    description="Module 1: JWT authentication and user-specific research history.",
+    description="Module 1: JWT authentication, research history and user preferences.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -33,6 +33,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(history.router)
+app.include_router(preferences.router)
 
 
 @app.get("/health", tags=["Health"])
