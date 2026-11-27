@@ -4,7 +4,7 @@ import pandas as pd
 
 def generate_signals(df: pd.DataFrame) -> dict:
     """
-    Generate technical signals using the latest indicator values.
+    Generate technical signals and classify the latest price trend.
     """
 
     if df.empty:
@@ -64,7 +64,7 @@ def generate_signals(df: pd.DataFrame) -> dict:
         else "neutral"
     )
 
-    # 5. Overall assessment
+    # 5. Overall signal
     bullish_count = list(signals.values()).count("bullish")
     bearish_count = list(signals.values()).count("bearish")
 
@@ -75,6 +75,22 @@ def generate_signals(df: pd.DataFrame) -> dict:
     else:
         overall = "neutral"
 
+    # 6. Overall price trend classification
+    if (
+        latest["close"] > latest["SMA_20"]
+        and latest["EMA_20"] > latest["SMA_20"]
+    ):
+        trend = "upward"
+
+    elif (
+        latest["close"] < latest["SMA_20"]
+        and latest["EMA_20"] < latest["SMA_20"]
+    ):
+        trend = "downward"
+
+    else:
+        trend = "mixed"
+
     return {
         "latest_price": round(float(latest["close"]), 2),
         "individual_signals": signals,
@@ -82,6 +98,7 @@ def generate_signals(df: pd.DataFrame) -> dict:
         "bullish_count": bullish_count,
         "bearish_count": bearish_count,
         "overall_signal": overall,
+        "trend": trend,
         "historical_volatility": round(
             float(latest["Volatility"]), 4
         )

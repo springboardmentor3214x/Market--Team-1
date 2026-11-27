@@ -12,12 +12,15 @@ class TechnicalAnalysisRequest(BaseModel):
 class TechnicalIndicators(BaseModel):
     close: float
     sma_20: float
+    ema_12: float
     ema_20: float
+    ema_26: float
     rsi_14: float
     macd: float
     macd_signal: float
     macd_histogram: float
     historical_volatility: float
+
 
 
 class TechnicalSignals(BaseModel):
@@ -29,13 +32,18 @@ class TechnicalSignals(BaseModel):
     bullish_count: int
     bearish_count: int
     overall_signal: Literal["bullish", "bearish", "neutral"]
+    trend: Literal["upward", "downward", "mixed"]
     historical_volatility: float
+
+
 
 
 class TechnicalConditions(BaseModel):
     latest_date: str | None
     conditions_detected: list[str]
+    explanations: list[str]
     condition_count: int
+
 
 
 class DataQuality(BaseModel):

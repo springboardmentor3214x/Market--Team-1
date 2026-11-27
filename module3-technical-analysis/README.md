@@ -1,348 +1,211 @@
 
+# MarketAI – Technical Analysis Agent
 
-\# MarketAI – Technical Analysis Agent
+## 1. Overview
 
+The Technical Analysis Agent is an independent component of the MarketAI project.
 
+It analyzes real historical stock market data using technical indicators, generates bullish, bearish, and neutral signals, identifies technical conditions, and produces visual charts.
 
-\## 1. Overview
+The agent retrieves historical OHLCV data from Module 2 through a REST API.
 
+## 2. Features
 
+- Fetches real historical stock data from Module 2.
+- Validates historical OHLCV records.
+- Calculates Simple Moving Average (SMA 20).
+- Calculates Exponential Moving Average (EMA 12, 20, 26).
+- Calculates Relative Strength Index (RSI 14).
+- Calculates MACD using EMA 12, EMA 26, and signal EMA 9.
+- Calculates annualized historical volatility.
+- Generates bullish, bearish, and neutral signals.
+- Classifies trends as upward, downward, or mixed.
+- Detects technical events and crossover conditions.
+- Provides plain-language explanations of detected conditions.
+- Generates four technical analysis charts.
+- Preserves data validation and provider metadata.
+- Exposes analysis through a FastAPI endpoint.
+- Uses Pydantic models for structured request and response validation.
 
-The Technical Analysis Agent is a component of the MarketAI project. It analyzes historical stock market data using technical indicators, generates trading signals, identifies technical conditions, and creates visual charts.
+## 3. Technology Stack
 
+- Python 3.13
+- FastAPI
+- Pandas
+- NumPy
+- Matplotlib
+- TA
+- Pydantic
+- Requests
+- Pytest
+- Uvicorn
 
-
-It retrieves actual historical stock data from Module 2 through a REST API.
-
-
-
-\## 2. Features
-
-
-
-\- Fetches historical stock data from Module 2.
-
-\- Calculates Simple Moving Average (SMA).
-
-\- Calculates Exponential Moving Average (EMA).
-
-\- Calculates Relative Strength Index (RSI).
-
-\- Calculates Moving Average Convergence Divergence (MACD).
-
-\- Calculates annualized historical volatility.
-
-\- Generates bullish, bearish, and neutral signals.
-
-\- Detects technical events and crossover conditions.
-
-\- Generates four technical analysis charts.
-
-\- Preserves data validation and provider metadata.
-
-\- Exposes analysis through a FastAPI endpoint.
-
-\- Uses Pydantic models for structured request and response validation.
-
-
-
-\## 3. Technology Stack
-
-
-
-\- Python 3.13
-
-\- FastAPI
-
-\- Pandas
-
-\- NumPy
-
-\- Matplotlib
-
-\- TA
-
-\- Pydantic
-
-\- Requests
-
-\- Pytest
-
-\- Uvicorn
-
-
-
-\## 4. Project Structure
-
-
+## 4. Project Structure
 
 ```text
-
 module3-technical-analysis/
-
-│
-
-├── app/
-
-│   ├── main.py
-
-│   │
-
-│   ├── models/
-
-│   │   └── technical\_analysis.py
-
-│   │
-
-│   ├── services/
-
-│   │   ├── indicators.py
-
-│   │   ├── market\_data\_client.py
-
-│   │   ├── signals.py
-
-│   │   ├── conditions.py
-
-│   │   ├── technical\_analysis.py
-
-│   │   └── charts.py
-
-│
-
-├── tests/
-
-│   ├── test\_api.py
-
-│   ├── test\_indicators.py
-
-│   ├── test\_real\_data.py
-
-│   ├── test\_signals.py
-
-│   ├── test\_conditions.py
-
-│   ├── test\_technical\_analysis.py
-
-│   ├── test\_charts.py
-
-│   └── test\_independent\_validation.py
-
-│
-
-├── outputs/
-
-│   └── charts/
-
-│
-
-└── README.md
-
+|
+|-- app/
+|   |-- main.py
+|   |
+|   |-- models/
+|   |   |-- technical_analysis.py
+|   |
+|   |-- services/
+|       |-- indicators.py
+|       |-- market_data_client.py
+|       |-- signals.py
+|       |-- conditions.py
+|       |-- technical_analysis.py
+|       |-- charts.py
+|
+|-- tests/
+|   |-- test_api.py
+|   |-- test_indicators.py
+|   |-- test_real_data.py
+|   |-- test_signals.py
+|   |-- test_conditions.py
+|   |-- test_technical_analysis.py
+|   |-- test_charts.py
+|   |-- test_independent_validation.py
+|
+|-- outputs/
+|   |-- charts/
+|
+|-- README.md
 ```
 
+## 5. Technical Indicators
 
+| Indicator | Configuration | Purpose |
+|---|---|---|
+| SMA | 20 days | Identifies average price trends |
+| EMA | 12, 20, 26 days | Gives more weight to recent prices |
+| RSI | 14 periods | Measures price momentum |
+| MACD | 12, 26, 9 | Identifies momentum and trend changes |
+| Historical Volatility | 20-period window | Measures annualized historical price fluctuations |
 
-\## 5. Technical Indicators
+### RSI Interpretation
 
+- RSI above 70: Overbought
+- RSI below 30: Oversold
+- RSI between 30 and 70: Normal range
 
+### MACD Interpretation
 
-| Indicator | Purpose |
+- MACD above signal line: Bullish indication
+- MACD below signal line: Bearish indication
 
-|---|---|
-
-| SMA | Identifies average price trends |
-
-| EMA | Gives more weight to recent prices |
-
-| RSI | Measures price momentum |
-
-| MACD | Identifies momentum and trend changes |
-
-| Historical Volatility | Measures historical price fluctuations |
-
-
-
-\## 6. API Integration
-
-
+## 6. API Integration
 
 The agent retrieves historical stock data from Module 2.
-
-
 
 Module 2 API:
 
 `http://127.0.0.1:8001`
 
-
-
-Module 3 API:
+Technical Analysis Agent API:
 
 `http://127.0.0.1:8002`
 
+### Run the application
 
-
-\### Run the application
-
-
-
-Activate the virtual environment and start the server:
-
-
+Activate the virtual environment:
 
 ```bash
-
-.venv\\Scripts\\activate
-
-python -m uvicorn app.main:app --reload --port 8002
-
+.venv\Scripts\activate
 ```
 
+Start the server:
 
+```bash
+python -m uvicorn app.main:app --reload --port 8002
+```
 
-\### API Documentation
-
-
+### API Documentation
 
 Open:
 
-
-
 `http://127.0.0.1:8002/docs`
 
-
-
-\### Technical Analysis Endpoint
-
-
+### Technical Analysis Endpoint
 
 `POST /api/technical-analysis`
 
-
-
 Example request:
 
-
-
 ```json
-
 {
-
-&nbsp; "symbol": "INFY",
-
-&nbsp; "market": "NSE",
-
-&nbsp; "period": "1Y"
-
+  "symbol": "INFY",
+  "market": "NSE",
+  "period": "1Y"
 }
-
 ```
-
-
 
 The response includes:
 
-\- Latest technical indicators
+- Latest technical indicator values
+- Individual technical signals
+- Overall technical signal
+- Trend classification
+- Detected technical conditions
+- Plain-language explanations
+- Data quality and source metadata
+- Analysis status
 
-\- Individual and overall signals
-
-\- Detected technical conditions
-
-\- Data quality and source metadata
-
-\- Analysis status
-
-
-
-\## 7. Chart Generation
-
-
+## 7. Chart Generation
 
 The chart service generates four visualizations:
 
-
-
-1\. Stock price with SMA and EMA
-
-2\. RSI chart
-
-3\. MACD chart
-
-4\. Historical volatility chart
-
-
+1. Stock price with SMA and EMA
+2. RSI chart
+3. MACD chart
+4. Historical volatility chart
 
 Generated charts are saved in:
 
-
-
 `outputs/charts/`
 
+## 8. Data Validation
 
+The agent preserves Module 2 validation information and independently validates received historical records.
 
-\## 8. Testing
+Checks include:
 
+- Required OHLCV columns
+- Valid trading dates
+- Missing and non-numeric values
+- Infinite values
+- Duplicate trading dates
+- Chronological sorting
+- Positive stock prices
+- High-Low price consistency
+- Open and Close within the High-Low range
+- Nonnegative trading volume
+- Sufficient historical records for analysis
 
+The agent rejects invalid or unusable data instead of estimating or inventing missing values.
+
+## 9. Testing
 
 Run all automated tests:
 
-
-
 ```bash
-
 python -m pytest -v
-
 ```
-
-
 
 Run indicator tests:
 
-
-
 ```bash
-
-python -m pytest tests/test\_indicators.py -v
-
+python -m pytest tests/test_indicators.py -v
 ```
 
-
-
-\## 9. Data Validation
-
-
-
-The agent preserves Module 2 validation information and checks historical records for:
-
-\- Missing values
-
-\- Invalid dates
-
-\- Non-numeric OHLCV values
-
-\- Insufficient historical records
-
-\- Unusable data returned by Module 2
-
-
-
-\## 10. Project Integration
-
-
+## 10. Project Integration
 
 The Technical Analysis Agent is designed as an independent component of MarketAI.
 
+It exposes a structured FastAPI response that can be consumed by the Supervisor Agent as part of the overall stock research workflow.
 
-
-It can be integrated with the Module 4 Supervisor Agent when the supervisor workflow is developed.
-
-
-
-\## 11. Disclaimer
-
-
+## 11. Disclaimer
 
 Technical indicators and generated signals describe historical market behaviour. They do not guarantee future price movements or investment returns.
-
-
-

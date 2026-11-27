@@ -42,7 +42,11 @@ def run_technical_analysis(
 
     # Step 3: Calculate technical indicators
     df["SMA_20"] = calculate_sma(close, 20)
+
+    df["EMA_12"] = calculate_ema(close, 12)
     df["EMA_20"] = calculate_ema(close, 20)
+    df["EMA_26"] = calculate_ema(close, 26)
+
     df["RSI_14"] = calculate_rsi(close, 14)
 
     macd = calculate_macd(close)
@@ -71,7 +75,9 @@ def run_technical_analysis(
     indicators = {
         "close": round(float(latest["close"]), 2),
         "sma_20": round(float(latest["SMA_20"]), 2),
+        "ema_12": round(float(latest["EMA_12"]), 2),
         "ema_20": round(float(latest["EMA_20"]), 2),
+        "ema_26": round(float(latest["EMA_26"]), 2),
         "rsi_14": round(float(latest["RSI_14"]), 2),
         "macd": round(float(latest["macd"]), 4),
         "macd_signal": round(float(latest["signal"]), 4),
